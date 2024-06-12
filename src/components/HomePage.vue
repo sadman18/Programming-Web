@@ -46,6 +46,7 @@ export default {
       fetch(`http://localhost:5049/Spot/${this.dateArrival}T11%3A42%3A30.099Z/${this.dateDeparture}T11%3A42%3A30.099Z/${this.city}`).then((response)=>response.json())
       .then((data)=>{
         this.spots=data
+        console.log(data)
       })
     },
     searchSpots() {

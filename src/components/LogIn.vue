@@ -125,6 +125,7 @@ export default {
                     let user = data.find(user => user.email === this.useremail && user.password === this.password);
                     if (user) {
                         this.user = user;
+                        localStorage.setItem('user', JSON.stringify(this.user));
                         alert("login successful"); // Log the parsed data
                     } else {
                         this.isErrorMessage = true;
