@@ -4,9 +4,9 @@
       <ul>
         <li><router-link to="/">Home</router-link></li>
         <li><router-link to="/login">Login</router-link></li>
-        <li><router-link to="/signup">Sign Up</router-link></li>
-        <li><router-link to="/profile">Profile</router-link></li>
-        <li><router-link to="/owner/dashboard">Owner Dashboard</router-link></li>
+        <li><router-link to="/signup">Sign-Up</router-link></li>
+        <li><router-link to="/UserProfile">User-Profile</router-link></li>
+        <li><router-link to="/AdminPage">Admin-Dashboard</router-link></li>
       </ul>
     </nav>
     <router-view />

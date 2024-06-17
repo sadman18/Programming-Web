@@ -1,180 +1,268 @@
 <template>
-    <div>
-        <div class="photo">
-            <img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-44630600/original/125bbb9e-4c81-497a-8d12-e57fa6658e28.jpeg?im_w=1200" alt="img1">
-            <img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-44630600/original/125bbb9e-4c81-497a-8d12-e57fa6658e28.jpeg?im_w=1200" alt="img2">
-            <img src="https://a0.muscache.com/im/pictures/prohost-api/Hosting-44630600/original/125bbb9e-4c81-497a-8d12-e57fa6658e28.jpeg?im_w=1200" alt="img3">
-        </div>
+  <div class="container">
+    <div class="header">
+      <h2>{{ spot.name }} {{ spot.city }}, {{ spot.location }}</h2>
+      <div class="rating">
+        <span>4.5/5</span>
+        <span>★★★★★</span>
+      </div>
     </div>
+   
     <div class="details">
-        <div class="data">
-            <h2>Camp Nirbana</h2>
-            <label>{{ spot.location }}</label>
-            <h3>Overview</h3>
-            <label>Free Wifi</label><br>
-            <label>Parking available</label><br>
-            <label>Kitchen area</label><br>
-            <label>Free cancellation</label><br>
-            <label>Free Wifi again</label>
+      <div class="overview">
+        <h3>Hotel Overview</h3>
+        <p>{{ spot.description }}</p>
+      </div>
+
+      <div class="services">
+        <h3>Services</h3>
+        <p>Whether you are traveling for business or pleasure, our room services include:</p>
+        <ul>
+          <li v-for="service in spot.services" :key="service">{{ service }}</li>
+        </ul>
+      </div>
+
+
+      <div class="booking">
+        <h3>Book Your Stay</h3>
+        <form @submit.prevent="confirmBooking">
+          <div class="form-group">
+            <label for="price">Price:</label>
+            <input type="text" id="price" :value="'€' + spot.price + '/day'" readonly>
+          </div>
+          <div class="form-group">
+            <label for="checkIn">Check In Date</label>
+            <input type="date" id="checkIn" v-model="checkIn" required>
+          </div>
+          <div class="form-group">
+            <label for="checkOut">Check Out Date</label>
+            <input type="date" id="checkOut" v-model="checkOut" required>
+          </div>
+          <div class="form-group">
+            <label for="guest">Guests</label>
+            <input type="number" id="guest" v-model="guest" min="1" required>
+          </div>
+          <button class="confirm-booking-btn" @click="confirmBooking">Confirm booking</button>
+        </form>
+      </div>
+
+      <div class="comments">
+        <h3>Comments</h3>
+        <div class="comment" v-for="comment in comments" :key="comment.id">
+          <p><strong>{{ comment.userID }}</strong> <span class="rating">{{ comment.rating }} ★</span></p>
+          <p>Comment: {{ comment.commentText }}</p>
         </div>
-        <div class="price">
-            <h3>${{ spot.price }}/day</h3><br>
-            <label>Check In Date</label><br>
-            <input type="date" v-model="checkIn"><br>
-            <label>Check Out Date</label><br>
-            <input type="date" v-model="checkOut"><br>
-            <label>Guests</label><br>
-            <input type="number" v-model="guest" min="1"><br>
-            <button class="confirm-booking-btn" @click="confirmBooking">Confirm booking</button>
-        </div>
+      </div>
     </div>
-    <h3>Comments</h3>
-    
-        <div class="comment" v-for="comment in comments" :key="comment.spotID">
-            <label for="">comments</label>
-            <p>{{ comment.userID }} xjvck <span class="rating">{{ comment.rating }}</span></p>
-            <p>Comment: {{ comment.commentText }}</p>
-        </div>
-    
+  </div>
 </template>
 
 <script>
 export default {
-    data() {
-        return {
-            spot: {},
-            comments: [], // Correctly initialize comments as an array
-            checkIn: '',
-            checkOut: '',
-            userID:'',
-            spotId:'',
-            guest: 1
-        };
-    },
-    methods: {
-        async fetchBooking() {
-            try {
-                const response = await fetch('http://localhost:5049/Booking');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            } catch (error) {
-                console.error('Error fetching bookings:', error);
-            }
-        },
-        async confirmBooking() {
-            const payload = {
-                checkIn: `${this.checkIn}T22:30:43.501Z`,
-                checkOut: `${this.checkOut}T22:30:43.501Z`,
-                userId: this.userID,
-                spotId: this.spot.id,
-                guest: this.guest
-            };
+  data() {
+    return {
+      spot: {},
+      spotId: null,
+      comments: [],
+      checkIn: '',
+      checkOut: '',
+      userID: '',
+      guest: 1,
+    };
+  },
+  methods: {
 
-            try {
-                const response = await fetch('http://localhost:5049/Booking', {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const newBooking = await response.json();
-                console.log('Booking successful:', newBooking);
-                alert("Booking successful!");
-                this.fetchBooking();
-            } catch (error) {
-                console.error('Error confirming booking:', error);
-            }
-        },
-        async getComments() {
-            if (!this.spot.id) {
-                console.error('Spot ID is not available.');
-                return;
-            }
 
-            try {
-                const response = await fetch("http://localhost:5049/api/Comment");
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                console.log('Fetched comments data:', data);
-
-                const comments = data.filter(
-                    (comment) => comment.spotID === this.spot.id
-                );
-                console.log('Filtered comments:', comments);
-                this.comments = comments;
-            } catch (error) {
-                console.error('Error fetching comments:', error);
-            }
+    async fetchSpot() {
+      try {
+        const response = await fetch(`http://localhost:5049/Spot/${this.spotId}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
         }
+        const data = await response.json();
+        this.spot = data;
+        this.getComments(); // Fetch comments after getting the spot details
+      } catch (error) {
+        console.error('Error fetching spot data:', error);
+      }
     },
-    mounted() {
-        // Assuming spot data is fetched or populated before calling getComments
-        // Ensure spot.id is available
-        this.spot = {
-            id: 1, // Example spot id
-            location: 'Some location',
-            price: 100
-        };
-        this.getComments();
-        const user = JSON.parse(localStorage.getItem('user'));
-        this.userID=user.id;
+    async confirmBooking() {
+      const payload = {
+        checkIn: `${this.checkIn}T00:00:00.000Z`,
+        checkOut: `${this.checkOut}T00:00:00.000Z`,
+        userId: this.userID,
+        spotId: this.spot.id,
+        guest: this.guest
+      };
+      console.log(payload)
+
+      try {
+        const response = await fetch('http://localhost:5049/api/Booking', {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const newBooking = await response.json();
+        console.log('Booking successful:', newBooking);
+        alert("Booking successful!");
+        this.fetchBooking();
+      } catch (error) {
+        console.error('Error confirming booking:', error);
+      }
+    },
+    async getComments() {
+      try {
+        const response = await fetch(`http://localhost:5049/api/Comment/${this.spot.id}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        this.comments = await response.json();
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
     }
+  },
+  async mounted() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    this.userID = user.id;
+    this.spotId = this.$route.params.id;
+    await this.fetchSpot();
+  }
 };
 </script>
 
 <style>
-.details {
-    display: flex;
-}
-
-.photo {
-    display: flex;
-    gap: 5px;
-}
-
-.photo img {
-    width: 480px;
-    height: 400px;
-    border-radius: 15px;
-}
-
-.data {
-    flex: 1;
-}
-
-.price {
-    flex: 2;
-    display: absolute;
-    width: 50px;
-    height: auto;
-    background-color: rgb(231, 220, 220);
-    border-radius: 15px;
-    margin-top: 20px;
-    box-shadow: 2px solid black;
-}
-
-body {
-    background-color: white;
-}
-
-.comments-container {
-    display: flex;
+.container {
+  display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
-    width: 80%;
+
+}
+
+.header {
+
+  margin-top: 1400px;
+  text-align: center;
+  background: #fff;
+  padding: 20px 0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-img {
+  margin-top: 200px;
+  width: 1200px;
+  height: 400px;
+  border-radius: 15px;
+}
+
+.header h2 {
+  font-size: 36px;
+  margin: 10px 0;
+}
+
+.header .rating {
+  font-size: 24px;
+  color: #f5c518;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
+
+.overview,
+.services,
+.booking,
+.comments {
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  font-size: 18px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+ul li {
+  padding: 5px 0;
+}
+
+.booking {
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  font-size: 18px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.booking h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="number"] {
+  width: calc(100% - 22px);
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.confirm-booking-btn {
+  display: block;
+  width: 100%;
+  padding: 15px 0;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  text-align: center;
+}
+
+.confirm-booking-btn:hover {
+  background-color: #0056b3;
+}
+
+.comments {
+  margin-top: 20px;
 }
 
 .comment {
-    width: 500px;
-    height: auto;
-    background-color: antiquewhite;
-    
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.comment .rating {
+  color: #f5c518;
 }
 </style>

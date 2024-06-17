@@ -2,7 +2,8 @@ import HomePage from "./components/HomePage.vue"
 import SignUp from "./components/SignUp.vue"
 import LogIn from "./components/LogIn.vue"
 import SpotDetails from "./components/SpotDetails.vue"
-// import Owner from "./components/owner/dashboard"
+import AdminPage from "./components/AdminPage"
+import UserProfile from "./components/UserProfile.vue"
 import {createRouter,createWebHistory  } from "vue-router";
 
 const routes = [
@@ -24,7 +25,18 @@ const routes = [
     {
         name: "SpotDetails",
         component: SpotDetails,
-        path: "/spotdetails"
+        path: "/spotdetails/:id"
+    },
+
+    {
+        name: "AdminPage",
+        component: AdminPage,
+        path: "/AdminPage"
+    },
+    {
+        name: "UserProfile",
+        component: UserProfile,
+        path: "/UserProfile"
     }
   
 ]

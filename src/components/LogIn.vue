@@ -13,7 +13,7 @@
             </div>
             <form class="login-form">
                 <label for="useremail">Username</label>
-                <input type="text" id="useremail" v-model="useremail" placeholder="Enter your useremail" />
+                <input type="text" id="useremail" v-model="useremail" placeholder="Enter your email" />
 
                 <label for="password">Password</label>
                 <input type="password" id="password" v-model="password" placeholder="Enter your password" />
@@ -21,13 +21,10 @@
                 <p v-if="isErrorMessage" class="error">{{ errorMessage }}</p>
                 <button @click.prevent="findUser" class="login-button">Login</button>
                 <div class="extra-options">
-                    <a @click="switchToCreateAccount">Create Account</a>
                     <a @click="switchToForgetPassword">Forgot Password?</a>
                 </div>
             </form>
         </div>
-
-        
 
         <!-- Forgot Password Form -->
         <div class="login-right" v-if="isForgetPassword">
@@ -53,7 +50,7 @@
         </div>
 
         <!-- Success Message -->
-        <div class="login-right" v-if="successfull">
+        <div class="login-right" v-if="successful">
             <div class="login-header">
                 <h2>Password update successful</h2>
                 <img src="https://cdn3.iconfinder.com/data/icons/social-messaging-ui-color-line/254000/39-512.png"
@@ -79,18 +76,13 @@ export default {
             gender: '',
             phone: '',
 
-            //create account
-            create_email: '',
-            create_password: '',
-
-
             isLogin: true,
             errorMessage: '',
             isErrorMessage: false,
             isCreateAccount: false,
             isForgetPassword: false,
             isresetpassword: false,
-            successfull: false,
+            successful: false,
         };
     },
     methods: {
@@ -100,7 +92,6 @@ export default {
             this.isForgetPassword = false;
         },
 
-        //Sign In        
         SignIn() {
             this.isCreateAccount = false;
             this.isLogin = true;
@@ -116,7 +107,7 @@ export default {
         },
         updatePassword() {
             this.isresetpassword = false;
-            this.successfull = true;
+            this.successful = true;
         },
         findUser() {
             fetch("http://localhost:5049/User")
@@ -126,10 +117,16 @@ export default {
                     if (user) {
                         this.user = user;
                         localStorage.setItem('user', JSON.stringify(this.user));
-                        alert("login successful"); // Log the parsed data
+
+                        if (this.user.email.endsWith('@admin.be')) {
+                            localStorage.setItem('admin', true);
+                        }
+
+                        this.$router.push({ name: 'HomePage' });
+                        alert("Login successful");
                     } else {
                         this.isErrorMessage = true;
-                        this.errorMessage = "Invalid email or password try again";
+                        this.errorMessage = "Invalid email or password. Try again.";
                         setTimeout(() => {
                             this.isErrorMessage = false;
                         }, 3000); // Hide error message after 3 seconds

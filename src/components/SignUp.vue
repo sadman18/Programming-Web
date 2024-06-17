@@ -20,9 +20,7 @@
           
         </form>
         <button type="submit" class="login-button" @click="signUp">Sign Up</button>
-        <div class="extra-options">
-          <a @click="signIn">Sign In</a>
-        </div>
+       
       </div>
     </div>
   </template>
